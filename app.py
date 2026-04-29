@@ -15,7 +15,7 @@ nunca y 5 el más alto o siempre.
 Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. Lee 
 cada una cuidadosamente, luego utilizando la escala provista decide qué conducta se 
 aplica más a ti. Para lograr los mejores resultados, trata de responder lo más honesto 
-posible. ")
+posible.")
 
 # Preguntas
 preguntas = [
