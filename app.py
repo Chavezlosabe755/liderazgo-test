@@ -31,15 +31,9 @@ preguntas = [
 
 respuestas = []
 
-# Botones tipo radio
 for i, p in enumerate(preguntas):
     st.markdown(f"**{i+1}. {p}**")
-    val = st.radio(
-        "Selecciona:",
-        options=[0,1,2,3,4,5],
-        horizontal=True,
-        key=f"q{i}"
-    )
+    val = st.radio("Selecciona:", [0,1,2,3,4,5], horizontal=True, key=f"q{i}")
     respuestas.append(val)
 
 if st.button("Enviar"):
@@ -75,26 +69,42 @@ if st.button("Enviar"):
 
     st.success("Respuesta guardada de forma anónima ✅")
 
-    # Mostrar resultados
+    # Resultados
     st.subheader("📊 Tu resultado")
     st.write(f"Gente: {gente:.2f}")
     st.write(f"Tareas: {tareas:.2f}")
     st.write(f"Estilo: **{estilo}**")
 
-    # 📈 Gráfica
-    fig, ax = plt.subplots()
+    # 📈 Gráfica correcta
+    fig, ax = plt.subplots(figsize=(6,6))
 
-    ax.scatter(gente, tareas)
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 10)
+    ax.set_xlim(1, 9)
+    ax.set_ylim(1, 9)
 
-    ax.set_xlabel("Orientación a la Gente")
-    ax.set_ylabel("Orientación a las Tareas")
-    ax.set_title("Grid de Liderazgo")
+    # Cuadrantes
+    ax.axhline(5)
+    ax.axvline(5)
 
-    ax.axhline(y=tareas)
-    ax.axvline(x=gente)
+    # Etiquetas
+    ax.text(3, 7, "Social", ha='center')
+    ax.text(7, 7, "Líder de equipo", ha='center')
+    ax.text(3, 3, "Ajeno", ha='center')
+    ax.text(7, 3, "Autoritario", ha='center')
 
-    ax.grid()
+    # Ejes
+    ax.set_xlabel("Tareas")
+    ax.set_ylabel("Personas")
+
+    ax.set_xticks(range(1,10))
+    ax.set_yticks(range(1,10))
+
+    # Punto
+    ax.scatter(tareas, gente, s=120)
+
+    # Líneas guía
+    ax.axhline(y=gente, linestyle='--')
+    ax.axvline(x=tareas, linestyle='--')
+
+    ax.grid(True)
 
     st.pyplot(fig)
