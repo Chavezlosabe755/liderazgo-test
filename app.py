@@ -6,16 +6,21 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Test de Liderazgo", layout="centered")
 
 st.title("Test de Liderazgo Blake & Mouton")
-st.write("Es un cuestionario de 18 preguntas, divididas en dos dimensiones: preguntas 
+st.write("""
+Este es un cuestionario anónimo de 18 preguntas, divididas en dos dimensiones: preguntas 
 orientadas a personas y preguntas orientadas a tareas. 
+
 El resultado nos puede decir si somos líderes orientados más a tareas o a las 
 personas. 
+
 Se debe contestar cada pregunta asignándole un valor de 0 a 5, donde 0 el más bajo o 
 nunca y 5 el más alto o siempre. 
-Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. Lee 
-cada una cuidadosamente, luego utilizando la escala provista decide qué conducta se 
-aplica más a ti. Para lograr los mejores resultados, trata de responder lo más honesto 
-posible.")
+
+Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. 
+Lee cada una cuidadosamente, luego utilizando la escala provista decide qué conducta 
+se aplica más a ti. Para lograr los mejores resultados, trata de responder lo más 
+honesto posible.
+""")
 
 # Preguntas
 preguntas = [
