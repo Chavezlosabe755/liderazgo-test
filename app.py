@@ -1,41 +1,49 @@
 import streamlit as st
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
-st.title("Test de Liderazgo Blake & Mouton")
+st.set_page_config(page_title="Test de Liderazgo", layout="centered")
 
-st.write("Responde cada pregunta de 0 (Nunca) a 5 (Siempre).")
+st.title("🧠 Test de Liderazgo Blake & Mouton")
+st.write("Selecciona un valor de 0 (Nunca) a 5 (Siempre).")
 
 preguntas = [
-"1. Animo a los miembros de mi equipo a participar en la toma de decisiones.",
-"2. Nada es más importante que completar un objetivo o tarea.",
-"3. Monitoreo muy de cerca la duración de las tareas.",
-"4. Me gusta ayudar a los demás a realizar nuevas tareas.",
-"5. Cuanto más desafiante es la tarea, más lo disfruto.",
-"6. Animo a mis colaboradores a ser creativos.",
-"7. Me aseguro de todos los detalles en tareas complejas.",
-"8. Me es fácil llevar varias tareas complicadas.",
-"9. Leo sobre liderazgo y lo aplico.",
-"10. Cuando corrijo errores no me preocupan las relaciones.",
-"11. Administro mi tiempo con efectividad.",
-"12. Me gusta explicar tareas complejas.",
-"13. Divido proyectos en tareas manejables.",
-"14. Desarrollar un gran equipo es clave.",
-"15. Me gusta analizar problemas.",
-"16. Respeto los límites de los demás.",
-"17. Aconsejo a mis empleados.",
-"18. Aplico lo que aprendo en mi profesión."
+"Animo a los miembros de mi equipo a participar en la toma de decisiones.",
+"Nada es más importante que completar un objetivo o tarea.",
+"Monitoreo muy de cerca la duración de las tareas.",
+"Me gusta ayudar a los demás a realizar nuevas tareas.",
+"Cuanto más desafiante es la tarea, más lo disfruto.",
+"Animo a mis colaboradores a ser creativos.",
+"Me aseguro de todos los detalles en tareas complejas.",
+"Me es fácil llevar varias tareas complicadas.",
+"Leo sobre liderazgo y lo aplico.",
+"Cuando corrijo errores no me preocupan las relaciones.",
+"Administro mi tiempo con efectividad.",
+"Me gusta explicar tareas complejas.",
+"Divido proyectos en tareas manejables.",
+"Desarrollar un gran equipo es clave.",
+"Me gusta analizar problemas.",
+"Respeto los límites de los demás.",
+"Aconsejo a mis empleados.",
+"Aplico lo que aprendo en mi profesión."
 ]
 
 respuestas = []
 
+# Botones tipo radio
 for i, p in enumerate(preguntas):
-    val = st.slider(p, 0, 5, 3)
+    st.markdown(f"**{i+1}. {p}**")
+    val = st.radio(
+        "Selecciona:",
+        options=[0,1,2,3,4,5],
+        horizontal=True,
+        key=f"q{i}"
+    )
     respuestas.append(val)
 
 if st.button("Enviar"):
-    
-    # Índices (0-based)
+
     gente_idx = [0,3,5,8,9,11,13,15]
     tareas_idx = [1,2,4,6,7,10,12,14,16,17]
 
@@ -54,7 +62,7 @@ if st.button("Enviar"):
 
     estilo = clasificar(gente, tareas)
 
-    # Guardado anónimo
+    # Guardar resultados
     df = pd.DataFrame([respuestas + [gente, tareas, estilo]],
                       columns=[f"P{i+1}" for i in range(18)] + ["Gente", "Tareas", "Estilo"])
 
@@ -67,9 +75,26 @@ if st.button("Enviar"):
 
     st.success("Respuesta guardada de forma anónima ✅")
 
-    st.subheader("Tu resultado:")
+    # Mostrar resultados
+    st.subheader("📊 Tu resultado")
     st.write(f"Gente: {gente:.2f}")
     st.write(f"Tareas: {tareas:.2f}")
     st.write(f"Estilo: **{estilo}**")
-    
 
+    # 📈 Gráfica
+    fig, ax = plt.subplots()
+
+    ax.scatter(gente, tareas)
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 10)
+
+    ax.set_xlabel("Orientación a la Gente")
+    ax.set_ylabel("Orientación a las Tareas")
+    ax.set_title("Grid de Liderazgo")
+
+    ax.axhline(y=tareas)
+    ax.axvline(x=gente)
+
+    ax.grid()
+
+    st.pyplot(fig)
