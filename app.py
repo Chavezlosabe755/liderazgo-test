@@ -8,6 +8,7 @@ st.set_page_config(page_title="Test de Liderazgo", layout="centered")
 st.title("🧠 Test de Liderazgo Blake & Mouton")
 st.write("Selecciona un valor de 0 (Nunca) a 5 (Siempre).")
 
+# Preguntas
 preguntas = [
 "Animo a los miembros de mi equipo a participar en la toma de decisiones.",
 "Nada es más importante que completar un objetivo o tarea.",
@@ -31,10 +32,42 @@ preguntas = [
 
 respuestas = []
 
+# Formulario
 for i, p in enumerate(preguntas):
     st.markdown(f"**{i+1}. {p}**")
     val = st.radio("Selecciona:", [0,1,2,3,4,5], horizontal=True, key=f"q{i}")
     respuestas.append(val)
+
+# Descripciones
+descripciones = {
+    "Ajeno": {
+        "emoji": "⚪",
+        "texto": """No se enfoca ni en las personas ni en las tareas. 
+Tiende a mantenerse al margen del equipo y evita involucrarse en la toma de decisiones."""
+    },
+    "Autoritario": {
+        "emoji": "🔴",
+        "texto": """Alta orientación a tareas, menor enfoque en relaciones. 
+Prioriza eficiencia, control y toma de decisiones centralizada."""
+    },
+    "Social": {
+        "emoji": "🟡",
+        "texto": """Fuerte enfoque en personas y relaciones. 
+Puede descuidar resultados o ejecución."""
+    },
+    "Líder de equipo": {
+        "emoji": "🟢",
+        "texto": """Equilibrio entre personas y tareas. 
+Promueve productividad y buen ambiente."""
+    }
+}
+
+color_map = {
+    "Ajeno": "gray",
+    "Autoritario": "red",
+    "Social": "orange",
+    "Líder de equipo": "green"
+}
 
 if st.button("Enviar"):
 
@@ -56,7 +89,7 @@ if st.button("Enviar"):
 
     estilo = clasificar(gente, tareas)
 
-    # Guardar resultados
+    # Guardar resultados (local)
     df = pd.DataFrame([respuestas + [gente, tareas, estilo]],
                       columns=[f"P{i+1}" for i in range(18)] + ["Gente", "Tareas", "Estilo"])
 
@@ -69,39 +102,53 @@ if st.button("Enviar"):
 
     st.success("Respuesta guardada de forma anónima ✅")
 
-    # Resultados
-    st.subheader("📊 Tu resultado")
-    st.write(f"Gente: {gente:.2f}")
-    st.write(f"Tareas: {tareas:.2f}")
-    st.write(f"Estilo: **{estilo}**")
+    # Mostrar resultado
+    info = descripciones[estilo]
 
-    # 📈 Gráfica correcta
+    st.markdown(f"## {info['emoji']} Estilo: {estilo}")
+    st.info(info["texto"])
+
+    col1, col2 = st.columns(2)
+    col1.metric("Personas", f"{gente:.2f}")
+    col2.metric("Tareas", f"{tareas:.2f}")
+
+    # Interpretación
+    st.markdown("### 📌 Interpretación")
+
+    if estilo == "Líder de equipo":
+        st.success("Perfil balanceado, ideal para liderazgo efectivo.")
+    elif estilo == "Autoritario":
+        st.warning("Gran enfoque en resultados, mejora relaciones.")
+    elif estilo == "Social":
+        st.warning("Buen manejo de personas, refuerza ejecución.")
+    else:
+        st.error("Desarrolla enfoque en personas y tareas.")
+
+    # 📈 Gráfica estilo Blake & Mouton
     fig, ax = plt.subplots(figsize=(6,6))
 
     ax.set_xlim(0.5, 9.5)
     ax.set_ylim(0.5, 9.5)
 
-    # Cuadrantes
     ax.axhline(5)
     ax.axvline(5)
 
-    # Etiquetas
     ax.text(3, 7, "Social", ha='center')
     ax.text(7, 7, "Líder de equipo", ha='center')
     ax.text(3, 3, "Ajeno", ha='center')
     ax.text(7, 3, "Autoritario", ha='center')
 
-    # Ejes
     ax.set_xlabel("Tareas")
     ax.set_ylabel("Personas")
 
     ax.set_xticks(range(1,10))
     ax.set_yticks(range(1,10))
 
-    # Punto
-    ax.scatter(tareas, gente, s=120)
+    ax.scatter(tareas, gente, 
+               s=150, 
+               color=color_map[estilo], 
+               edgecolors='black')
 
-    # Líneas guía
     ax.axhline(y=gente, linestyle='--')
     ax.axvline(x=tareas, linestyle='--')
 
