@@ -42,23 +42,46 @@ for i, p in enumerate(preguntas):
 descripciones = {
     "Ajeno": {
         "emoji": "⚪",
-        "texto": """No se enfoca ni en las personas ni en las tareas. 
-Tiende a mantenerse al margen del equipo y evita involucrarse en la toma de decisiones."""
+        "texto": """Tu estilo de liderazgo tiende a mantenerse al margen tanto de las personas como de las tareas. 
+Es probable que no te involucres activamente en la dirección del equipo ni en el seguimiento de objetivos.
+
+Esto puede hacer que tu equipo perciba falta de guía o apoyo, lo que impacta en la motivación y en los resultados. 
+Tampoco sueles involucrarte en las preocupaciones o expectativas del equipo, lo cual puede limitar el desempeño colectivo.
+
+Desarrollar mayor involucramiento tanto en las personas como en los objetivos puede ayudarte a generar mayor impacto como líder."""
     },
+
     "Autoritario": {
         "emoji": "🔴",
-        "texto": """Alta orientación a tareas, menor enfoque en relaciones. 
-Prioriza eficiencia, control y toma de decisiones centralizada."""
+        "texto": """Tu estilo de liderazgo está fuertemente orientado al cumplimiento de tareas y objetivos. 
+Tiendes a tomar el control, dirigir, y asegurarte de que el trabajo se realice de forma eficiente y correcta.
+
+Probablemente confías en tu criterio para tomar decisiones importantes y priorizas la rapidez y precisión, especialmente en situaciones urgentes.
+
+Sin embargo, este enfoque puede hacer que descuides el aspecto humano del equipo. 
+Fortalecer tus habilidades en relaciones interpersonales puede ayudarte a potenciar aún más tu liderazgo."""
     },
+
     "Social": {
         "emoji": "🟡",
-        "texto": """Fuerte enfoque en personas y relaciones. 
-Puede descuidar resultados o ejecución."""
+        "texto": """Tu estilo de liderazgo está centrado en las personas. 
+Te preocupas por el bienestar de tu equipo, fomentas un ambiente positivo y das libertad para que cada quien trabaje a su manera.
+
+Es probable que generes confianza y buenas relaciones dentro del equipo, lo cual es clave para un ambiente saludable.
+
+Sin embargo, este enfoque puede hacer que en ocasiones los resultados o la ejecución de tareas no sean la prioridad. 
+Encontrar un mejor balance entre personas y objetivos puede llevar tu liderazgo al siguiente nivel."""
     },
+
     "Líder de equipo": {
         "emoji": "🟢",
-        "texto": """Equilibrio entre personas y tareas. 
-Promueve productividad y buen ambiente."""
+        "texto": """Tu estilo de liderazgo logra un equilibrio sólido entre las personas y las tareas. 
+No solo te enfocas en alcanzar objetivos, sino también en construir un ambiente positivo y colaborativo.
+
+Entiendes que un equipo motivado y bien dirigido es clave para lograr resultados sostenibles. 
+Te preocupas por prevenir conflictos, mantener la satisfacción del equipo y asegurar que todos estén alineados.
+
+Este es uno de los estilos más efectivos de liderazgo, ya que combina productividad con bienestar organizacional."""
     }
 }
 
