@@ -78,8 +78,8 @@ if st.button("Enviar"):
     # 📈 Gráfica correcta
     fig, ax = plt.subplots(figsize=(6,6))
 
-    ax.set_xlim(1, 9)
-    ax.set_ylim(1, 9)
+    ax.set_xlim(0.5, 9.5)
+    ax.set_ylim(0.5, 9.5)
 
     # Cuadrantes
     ax.axhline(5)
