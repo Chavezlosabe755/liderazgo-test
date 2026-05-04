@@ -30,7 +30,7 @@ def guardar_en_sheets(respuestas, gente, tareas, estilo):
 
     client = gspread.authorize(creds)
 
-    sheet = client.open("Resultados Liderazgo").sheet1
+    sheet = client.open_by_key("1tB5RGgE7pKZLY07MDpN1mp-BGvzR4V1YKUcfmBmbopI").sheet1
 
     fila = [
         json.dumps(respuestas),
