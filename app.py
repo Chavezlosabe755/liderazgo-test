@@ -244,7 +244,7 @@ if st.button("Enviar"):
 
     with open(archivo_pdf, "rb") as f:
         st.download_button(
-            label="📥 Descargar reporte PDF",
+            label="Descargar resultados en PDF",
             data=f,
             file_name="reporte_liderazgo.pdf",
             mime="application/pdf"
