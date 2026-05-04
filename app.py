@@ -188,7 +188,6 @@ if st.button("Enviar"):
 
     # GUARDAR
     guardar_en_sheets(respuestas, gente, tareas, estilo)
-    st.success("Respuestas guardadas en la nube ✅")
 
     # RESULTADO
     st.divider()
