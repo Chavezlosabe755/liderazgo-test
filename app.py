@@ -13,11 +13,11 @@ st.set_page_config(page_title="Test de Liderazgo", layout="centered")
 
 st.title("Test de Liderazgo Blake & Mouton")
 
-st.write(""" Este es un cuestionario anónimo de 18 preguntas, divididas en dos dimensiones: preguntas orientadas a personas y preguntas orientadas a tareas. El resultado nos puede decir si somos líderes orientados más a tareas o a las personas. 
+st.write(""" 
+Este es un cuestionario anónimo de 18 preguntas, divididas en dos dimensiones: preguntas orientadas a personas y preguntas orientadas a tareas. 
 
-Se debe contestar cada pregunta asignándole un valor de 0 a 5, donde 0 el más bajo o nunca y 5 el más alto o siempre. Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. 
-
-Lee cada una cuidadosamente, luego utilizando la escala provista decide qué conducta se aplica más a ti. Para lograr los mejores resultados, trata de responder lo más honesto posible. """)
+Se debe contestar cada pregunta asignándole un valor de 0 a 5, donde 0 es nunca y 5 es siempre.
+""")
 
 # -------------------------
 # GUARDAR EN SHEETS
@@ -46,7 +46,7 @@ def guardar_en_sheets(respuestas, gente, tareas, estilo):
     sheet.append_row(fila)
 
 # -------------------------
-# DESCRIPCIONES ORIGINALES
+# DESCRIPCIONES
 # -------------------------
 descripciones = {
     "Ajeno": {
@@ -188,6 +188,7 @@ if st.button("Enviar"):
 
     # GUARDAR
     guardar_en_sheets(respuestas, gente, tareas, estilo)
+    st.success("Respuestas guardadas en la nube ✅")
 
     # RESULTADO
     st.divider()
@@ -204,15 +205,38 @@ if st.button("Enviar"):
     col1.metric("Personas", f"{gente:.2f}")
     col2.metric("Tareas", f"{tareas:.2f}")
 
-    # GRAFICA
-    fig, ax = plt.subplots()
+    # -------------------------
+    # 📈 GRAFICA ORIGINAL (LA TUYA)
+    # -------------------------
+    fig, ax = plt.subplots(figsize=(6,6))
+
     ax.set_xlim(0.5, 9.5)
     ax.set_ylim(0.5, 9.5)
+
     ax.axhline(5)
     ax.axvline(5)
-    ax.scatter(tareas, gente, s=150, color=color_map[estilo])
+
+    ax.text(3, 7, "Social", ha='center')
+    ax.text(7, 7, "Líder de equipo", ha='center')
+    ax.text(3, 3, "Ajeno", ha='center')
+    ax.text(7, 3, "Autoritario", ha='center')
+
     ax.set_xlabel("Tareas")
     ax.set_ylabel("Personas")
+
+    ax.set_xticks(range(1,10))
+    ax.set_yticks(range(1,10))
+
+    ax.scatter(tareas, gente, 
+               s=150, 
+               color=color_map[estilo], 
+               edgecolors='black')
+
+    ax.axhline(y=gente, linestyle='--')
+    ax.axvline(x=tareas, linestyle='--')
+
+    ax.grid(True)
+
     st.pyplot(fig)
 
     # PDF
