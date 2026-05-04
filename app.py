@@ -1,9 +1,12 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from datetime import datetime
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import json
 
 # PDF
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Test de Liderazgo", layout="centered")
@@ -15,6 +18,32 @@ st.write(""" Este es un cuestionario anónimo de 18 preguntas, divididas en dos 
 Se debe contestar cada pregunta asignándole un valor de 0 a 5, donde 0 el más bajo o nunca y 5 el más alto o siempre. Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. 
 
 Lee cada una cuidadosamente, luego utilizando la escala provista decide qué conducta se aplica más a ti. Para lograr los mejores resultados, trata de responder lo más honesto posible. """)
+
+# -------------------------
+# GUARDAR EN SHEETS
+# -------------------------
+def guardar_en_sheets(respuestas, gente, tareas, estilo):
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        st.secrets["gcp_service_account"], scope
+    )
+
+    client = gspread.authorize(creds)
+
+    sheet = client.open_by_key("1tB5RGgE7pKZLY07MDpN1mp-BGvzR4V1YKUcfmBmbopI").sheet1
+
+    fila = [
+        json.dumps(respuestas),
+        gente,
+        tareas,
+        estilo
+    ]
+
+    sheet.append_row(fila)
 
 # -------------------------
 # DESCRIPCIONES ORIGINALES
@@ -102,8 +131,12 @@ for i, p in enumerate(preguntas):
 # -------------------------
 # PDF
 # -------------------------
-def generar_pdf(estilo, gente, tareas, descripcion):
+def generar_pdf(estilo, gente, tareas, descripcion, fig):
     archivo = "reporte.pdf"
+    img_path = "grafica.png"
+
+    fig.savefig(img_path)
+
     doc = SimpleDocTemplate(archivo)
     styles = getSampleStyleSheet()
 
@@ -118,6 +151,10 @@ def generar_pdf(estilo, gente, tareas, descripcion):
     contenido.append(Spacer(1, 10))
     contenido.append(Paragraph("Descripción:", styles["Heading3"]))
     contenido.append(Paragraph(descripcion, styles["Normal"]))
+
+    contenido.append(Spacer(1, 10))
+    contenido.append(Paragraph("Gráfica:", styles["Heading3"]))
+    contenido.append(Image(img_path, width=400, height=400))
 
     contenido.append(Spacer(1, 10))
     contenido.append(Paragraph(f"Fecha: {datetime.now()}", styles["Normal"]))
@@ -149,9 +186,11 @@ if st.button("Enviar"):
     estilo = clasificar(gente, tareas)
     info = descripciones[estilo]
 
-    # -------------------------
+    # GUARDAR
+    guardar_en_sheets(respuestas, gente, tareas, estilo)
+    st.success("Respuestas guardadas en la nube ✅")
+
     # RESULTADO
-    # -------------------------
     st.divider()
     st.markdown(f"## {info['emoji']} Estilo: {estilo}")
 
@@ -166,9 +205,7 @@ if st.button("Enviar"):
     col1.metric("Personas", f"{gente:.2f}")
     col2.metric("Tareas", f"{tareas:.2f}")
 
-    # -------------------------
     # GRAFICA
-    # -------------------------
     fig, ax = plt.subplots()
     ax.set_xlim(0.5, 9.5)
     ax.set_ylim(0.5, 9.5)
@@ -179,10 +216,8 @@ if st.button("Enviar"):
     ax.set_ylabel("Personas")
     st.pyplot(fig)
 
-    # -------------------------
     # PDF
-    # -------------------------
-    archivo_pdf = generar_pdf(estilo, gente, tareas, info["texto"])
+    archivo_pdf = generar_pdf(estilo, gente, tareas, info["texto"], fig)
 
     with open(archivo_pdf, "rb") as f:
         st.download_button(
