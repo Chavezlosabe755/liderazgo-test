@@ -1,45 +1,69 @@
 import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import json
+from datetime import datetime
+
+# PDF
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Test de Liderazgo", layout="centered")
 
 st.title("Test de Liderazgo Blake & Mouton")
 
-st.write(""" Este es un cuestionario anónimo de 18 preguntas, divididas en dos dimensiones: preguntas orientadas a personas y preguntas orientadas a tareas. 
-         
-El resultado nos puede decir si somos líderes orientados más a tareas o a las personas. Se debe contestar cada pregunta asignándole un valor de 0 a 5, donde 0 el más bajo o nunca y 5 el más alto o siempre. 
-
-Abajo encontrarás una lista de declaraciones acerca de la conducta de un líder. Lee cada una cuidadosamente, luego utilizando la escala provista decide qué conducta se aplica más a ti. Para lograr los mejores resultados, trata de responder lo más honesto posible. """)
+st.write("Responde de 0 (nunca) a 5 (siempre)")
 
 # -------------------------
-# FUNCION GOOGLE SHEETS
+# DESCRIPCIONES ORIGINALES
 # -------------------------
-def guardar_en_sheets(respuestas, gente, tareas, estilo):
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/drive"
-    ]
+descripciones = {
+    "Ajeno": {
+        "emoji": "⚪",
+        "texto": """Tu estilo de liderazgo tiende a mantenerse al margen tanto de las personas como de las tareas. 
+Es probable que no te involucres activamente en la dirección del equipo ni en el seguimiento de objetivos.
 
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(
-        st.secrets["gcp_service_account"], scope
-    )
+Esto puede hacer que tu equipo perciba falta de guía o apoyo, lo que impacta en la motivación y en los resultados. 
+Tampoco sueles involucrarte en las preocupaciones o expectativas del equipo, lo cual puede limitar el desempeño colectivo.
 
-    client = gspread.authorize(creds)
+Desarrollar mayor involucramiento tanto en las personas como en los objetivos puede ayudarte a generar mayor impacto como líder."""
+    },
+    "Autoritario": {
+        "emoji": "🔴",
+        "texto": """Tu estilo de liderazgo está fuertemente orientado al cumplimiento de tareas y objetivos. 
+Tiendes a tomar el control, dirigir, y asegurarte de que el trabajo se realice de forma eficiente y correcta.
 
-    sheet = client.open_by_key("1tB5RGgE7pKZLY07MDpN1mp-BGvzR4V1YKUcfmBmbopI").sheet1
+Probablemente confías en tu criterio para tomar decisiones importantes y priorizas la rapidez y precisión, especialmente en situaciones urgentes.
 
-    fila = [
-        json.dumps(respuestas),
-        gente,
-        tareas,
-        estilo
-    ]
+Sin embargo, este enfoque puede hacer que descuides el aspecto humano del equipo. 
+Fortalecer tus habilidades en relaciones interpersonales puede ayudarte a potenciar aún más tu liderazgo."""
+    },
+    "Social": {
+        "emoji": "🟡",
+        "texto": """Tu estilo de liderazgo está centrado en las personas. 
+Te preocupas por el bienestar de tu equipo, fomentas un ambiente positivo y das libertad para que cada quien trabaje a su manera.
 
-    sheet.append_row(fila)
+Es probable que generes confianza y buenas relaciones dentro del equipo, lo cual es clave para un ambiente saludable.
+
+Sin embargo, este enfoque puede hacer que en ocasiones los resultados o la ejecución de tareas no sean la prioridad. 
+Encontrar un mejor balance entre personas y objetivos puede llevar tu liderazgo al siguiente nivel."""
+    },
+    "Líder de equipo": {
+        "emoji": "🟢",
+        "texto": """Tu estilo de liderazgo logra un equilibrio sólido entre las personas y las tareas. 
+No solo te enfocas en alcanzar objetivos, sino también en construir un ambiente positivo y colaborativo.
+
+Entiendes que un equipo motivado y bien dirigido es clave para lograr resultados sostenibles. 
+Te preocupas por prevenir conflictos, mantener la satisfacción del equipo y asegurar que todos estén alineados.
+
+Este es uno de los estilos más efectivos de liderazgo, ya que combina productividad con bienestar organizacional."""
+    }
+}
+
+color_map = {
+    "Ajeno": "gray",
+    "Autoritario": "red",
+    "Social": "orange",
+    "Líder de equipo": "green"
+}
 
 # -------------------------
 # PREGUNTAS
@@ -68,9 +92,34 @@ preguntas = [
 respuestas = []
 
 for i, p in enumerate(preguntas):
-    st.markdown(f"**{i+1}. {p}**")
-    val = st.radio("Selecciona:", [0,1,2,3,4,5], horizontal=True, key=f"q{i}")
+    val = st.radio(f"{i+1}. {p}", [0,1,2,3,4,5], horizontal=True, key=i)
     respuestas.append(val)
+
+# -------------------------
+# PDF
+# -------------------------
+def generar_pdf(estilo, gente, tareas, descripcion):
+    archivo = "reporte.pdf"
+    doc = SimpleDocTemplate(archivo)
+    styles = getSampleStyleSheet()
+
+    contenido = []
+    contenido.append(Paragraph("Reporte de Liderazgo", styles["Title"]))
+    contenido.append(Spacer(1, 10))
+
+    contenido.append(Paragraph(f"Estilo: {estilo}", styles["Heading2"]))
+    contenido.append(Paragraph(f"Personas: {gente:.2f}", styles["Normal"]))
+    contenido.append(Paragraph(f"Tareas: {tareas:.2f}", styles["Normal"]))
+
+    contenido.append(Spacer(1, 10))
+    contenido.append(Paragraph("Descripción:", styles["Heading3"]))
+    contenido.append(Paragraph(descripcion, styles["Normal"]))
+
+    contenido.append(Spacer(1, 10))
+    contenido.append(Paragraph(f"Fecha: {datetime.now()}", styles["Normal"]))
+
+    doc.build(contenido)
+    return archivo
 
 # -------------------------
 # LOGICA
@@ -94,18 +143,20 @@ if st.button("Enviar"):
             return "Líder de equipo"
 
     estilo = clasificar(gente, tareas)
-
-    # -------------------------
-    # GUARDAR EN SHEETS
-    # -------------------------
-    guardar_en_sheets(respuestas, gente, tareas, estilo)
-
-    st.success("Guardado en Google Sheets ✅")
+    info = descripciones[estilo]
 
     # -------------------------
     # RESULTADO
     # -------------------------
-    st.subheader(f"Resultado: {estilo}")
+    st.divider()
+    st.markdown(f"## {info['emoji']} Estilo: {estilo}")
+
+    st.markdown(f"""
+    <div style="background-color:#f5f5f5; padding:20px; border-radius:10px;">
+    <h4>🧠 Descripción</h4>
+    <p>{info["texto"]}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     col1.metric("Personas", f"{gente:.2f}")
@@ -114,30 +165,25 @@ if st.button("Enviar"):
     # -------------------------
     # GRAFICA
     # -------------------------
-    fig, ax = plt.subplots(figsize=(6,6))
-
+    fig, ax = plt.subplots()
     ax.set_xlim(0.5, 9.5)
     ax.set_ylim(0.5, 9.5)
-
     ax.axhline(5)
     ax.axvline(5)
-
-    ax.text(3, 7, "Social", ha='center')
-    ax.text(7, 7, "Líder de equipo", ha='center')
-    ax.text(3, 3, "Ajeno", ha='center')
-    ax.text(7, 3, "Autoritario", ha='center')
-
+    ax.scatter(tareas, gente, s=150, color=color_map[estilo])
     ax.set_xlabel("Tareas")
     ax.set_ylabel("Personas")
-
-    ax.set_xticks(range(1,10))
-    ax.set_yticks(range(1,10))
-
-    ax.scatter(tareas, gente, s=150, edgecolors='black')
-
-    ax.axhline(y=gente, linestyle='--')
-    ax.axvline(x=tareas, linestyle='--')
-
-    ax.grid(True)
-
     st.pyplot(fig)
+
+    # -------------------------
+    # PDF
+    # -------------------------
+    archivo_pdf = generar_pdf(estilo, gente, tareas, info["texto"])
+
+    with open(archivo_pdf, "rb") as f:
+        st.download_button(
+            label="📥 Descargar reporte PDF",
+            data=f,
+            file_name="reporte_liderazgo.pdf",
+            mime="application/pdf"
+        )
